@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use OffsetSmoker\StatutoryDeadlines\Calendar;
 use OffsetSmoker\StatutoryDeadlines\Exceptions\InvalidDeadlineArgument;
 use OffsetSmoker\StatutoryDeadlines\Holidays\Closure;
 use OffsetSmoker\StatutoryDeadlines\Holidays\EasterHoliday;
 use OffsetSmoker\StatutoryDeadlines\Holidays\FixedDateHoliday;
 use OffsetSmoker\StatutoryDeadlines\Holidays\NthWeekdayHoliday;
+use OffsetSmoker\StatutoryDeadlines\Holidays\Observance;
 use OffsetSmoker\StatutoryDeadlines\Holidays\WeekendShift;
 use OffsetSmoker\StatutoryDeadlines\LocalDate;
 use OffsetSmoker\StatutoryDeadlines\Weekday;
@@ -97,6 +99,25 @@ it('reports whether an occurrence was shifted and why', function (): void {
         ->and($weekday->isShifted())->toBeFalse()
         ->and($weekday->describe())->toBe('Independence Day')
         ->and($weekday->toArray()['observed_citation'])->toBeNull();
+});
+
+it('lists an offset that crosses New Year under the year the date falls in', function (): void {
+    // The first Monday of January 2024 is 1 January, so six days before it is
+    // 26 December 2023; the first Monday of 2025 is 6 January, giving 31 December 2024.
+    $before = new NthWeekdayHoliday('Test', 1, Weekday::Monday, 1, 'test', offsetDays: -6);
+    // The last Thursday of December 2026 is the 31st, so six days after it is 6 January 2027.
+    $after = new NthWeekdayHoliday('Test', 12, Weekday::Thursday, NthWeekdayHoliday::LAST, 'test', offsetDays: 6);
+
+    $dates = static fn(NthWeekdayHoliday $rule, int $year): array => array_map(
+        static fn(Observance $observance): string => $observance->date->toString(),
+        $rule->occurrencesIn($year),
+    );
+
+    expect($dates($before, 2024))->toBe(['2024-12-31'])
+        ->and($dates($before, 2023))->toBe(['2023-12-26'])
+        ->and($dates($after, 2026))->toBe([])
+        ->and($dates($after, 2027))->toBe(['2027-01-06'])
+        ->and((new Calendar('Test', [$before]))->holidaysFallingOn(LocalDate::parse('2023-12-26')))->toHaveCount(1);
 });
 
 it('produces nothing before a rule\'s first year', function (): void {

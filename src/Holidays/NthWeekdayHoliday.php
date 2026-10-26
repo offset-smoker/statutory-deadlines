@@ -58,15 +58,34 @@ final readonly class NthWeekdayHoliday implements HolidayRule
         return $this->citation;
     }
 
+    /**
+     * An offset can carry the date across New Year (six days before the first
+     * Monday of January can be in December), so the occurrences for $year are
+     * generated from the neighbouring years too and kept when their own date
+     * falls in $year. The first year applies to the year the rule is resolved in.
+     */
     public function occurrencesIn(int $year): array
     {
-        if ($this->firstYear !== null && $year < $this->firstYear) {
-            return [];
+        $firstDay = (new LocalDate($year, 1, 1))->toDayNumber();
+        $lastDay = (new LocalDate($year, 12, 31))->toDayNumber();
+        $occurrences = [];
+
+        foreach ([$year - 1, $year, $year + 1] as $from) {
+            if ($from < 1 || $from > 9999 || ($this->firstYear !== null && $from < $this->firstYear)) {
+                continue;
+            }
+
+            $dayNumber = $this->resolve($from)->toDayNumber() + $this->offsetDays;
+
+            if ($dayNumber < $firstDay || $dayNumber > $lastDay) {
+                continue;
+            }
+
+            $date = LocalDate::fromDayNumber($dayNumber);
+            $occurrences[] = new Observance($this->name, $date, $date, $this->citation);
         }
 
-        $date = $this->resolve($year)->addDays($this->offsetDays);
-
-        return [new Observance($this->name, $date, $date, $this->citation)];
+        return $occurrences;
     }
 
     private function resolve(int $year): LocalDate
