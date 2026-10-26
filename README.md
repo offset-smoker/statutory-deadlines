@@ -52,9 +52,10 @@ echo $rtkl->appealFromResponse('2026-07-10')->dueDate()->describe(), PHP_EOL;
 echo PHP_EOL, $rtkl->extendedResponse($received)->explain(), PHP_EOL;
 ```
 
-This is [`examples/right-to-know.php`](examples/right-to-know.php); a test
-runs it and checks each printed date against the comment under it. The last
-line prints:
+This is [`examples/right-to-know.php`](examples/right-to-know.php). A test
+checks that this block is that file, runs it, and checks each printed date
+against the comment under it and the explanation against the block below.
+The last line prints:
 
 ```text
 Rule: Pennsylvania Right-to-Know Law, latest response date under an extension notice (65 P.S. § 67.901; 65 P.S. § 67.902(b)(2)).
@@ -87,6 +88,9 @@ use OffsetSmoker\StatutoryDeadlines\Calendar;
 use OffsetSmoker\StatutoryDeadlines\Deadline;
 use OffsetSmoker\StatutoryDeadlines\Unit;
 
+$received = new DateTimeImmutable('2026-07-02 17:05', new DateTimeZone('America/New_York'));
+$now = new DateTimeImmutable('now', new DateTimeZone('America/New_York'));
+
 $deadline = Deadline::from($received, Calendar::pennsylvania(), 'America/New_York')
     ->withCutoff('16:30')          // optional
     ->countReceiptDay(false)       // the default: day of receipt is excluded
@@ -94,7 +98,7 @@ $deadline = Deadline::from($received, Calendar::pennsylvania(), 'America/New_Yor
     ->extendBy(30, Unit::CalendarDays);
 
 $deadline->due();                  // start of the due day, same class you passed in
-$deadline->dueDate();              // LocalDate, e.g. (string) "2026-08-10"
+$deadline->dueDate();              // LocalDate; (string) gives "2026-08-10"
 $deadline->isMissedAt($now);       // true from the day after the due date
 $deadline->explain()->skipped();   // the days passed over, each with its reason
 ```
@@ -251,9 +255,12 @@ $rule = new DeadlineRule(
     extensions: [new Period(10, Unit::BusinessDays, citation: 'Example Code § 5-102')],
 );
 
-$rule->apply($received, $office, 'America/Chicago')->due();
+$received = new DateTimeImmutable('2026-10-26 10:00', new DateTimeZone('America/Chicago'));
+
+$due = $rule->apply($received, $office, 'America/Chicago')->due();
 ```
 
+Run it after the calendar block above, which defines `$office`.
 [`examples/custom-rule.php`](examples/custom-rule.php) runs a version of
 this. "Example State" and its code are made up.
 
@@ -277,6 +284,7 @@ php artisan vendor:publish --tag=statutory-deadlines-config
 ```php
 use OffsetSmoker\StatutoryDeadlines\Laravel\Facades\Deadlines;
 
+// received_at must be a date: cast it with 'received_at' => 'datetime' on the model.
 Deadlines::from($request->received_at)->businessDays(5)->due();
 Deadlines::rightToKnow()->response($request->received_at)->explain()->toArray();
 Deadlines::apply($rule, $request->received_at);
