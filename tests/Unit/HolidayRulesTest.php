@@ -118,16 +118,20 @@ it('limits a closure to its own date', function (): void {
         ->and($closure->name())->toBe('Closed by proclamation');
 });
 
-it('refuses rules that cannot describe a yearly holiday', function (Closure|Throwable $make): void {
-    $make();
-})->with([
-    'February 29' => fn(): FixedDateHoliday => new FixedDateHoliday('Leap', 2, 29, 'test'),
-    'April 31' => fn(): FixedDateHoliday => new FixedDateHoliday('Bad', 4, 31, 'test'),
-    'fifth Monday' => fn(): NthWeekdayHoliday => new NthWeekdayHoliday('Bad', 1, Weekday::Monday, 5, 'test'),
-    'zeroth Monday' => fn(): NthWeekdayHoliday => new NthWeekdayHoliday('Bad', 1, Weekday::Monday, 0, 'test'),
-    'month 13' => fn(): NthWeekdayHoliday => new NthWeekdayHoliday('Bad', 13, Weekday::Monday, 1, 'test'),
-    'week-long offset' => fn(): NthWeekdayHoliday => new NthWeekdayHoliday('Bad', 1, Weekday::Monday, 1, 'test', offsetDays: 7),
-    'Easter offset too large' => fn(): EasterHoliday => new EasterHoliday('Bad', 61, 'test'),
-    'unnamed holiday' => fn(): FixedDateHoliday => new FixedDateHoliday('', 1, 1, 'test'),
-    'closure without a reason' => fn(): Closure => new Closure(LocalDate::parse('2026-01-02'), '  '),
-])->throws(InvalidDeadlineArgument::class);
+it('refuses rules that cannot describe a yearly holiday', function (): void {
+    $invalid = [
+        'February 29' => fn(): FixedDateHoliday => new FixedDateHoliday('Leap', 2, 29, 'test'),
+        'April 31' => fn(): FixedDateHoliday => new FixedDateHoliday('Bad', 4, 31, 'test'),
+        'fifth Monday' => fn(): NthWeekdayHoliday => new NthWeekdayHoliday('Bad', 1, Weekday::Monday, 5, 'test'),
+        'zeroth Monday' => fn(): NthWeekdayHoliday => new NthWeekdayHoliday('Bad', 1, Weekday::Monday, 0, 'test'),
+        'month 13' => fn(): NthWeekdayHoliday => new NthWeekdayHoliday('Bad', 13, Weekday::Monday, 1, 'test'),
+        'week-long offset' => fn(): NthWeekdayHoliday => new NthWeekdayHoliday('Bad', 1, Weekday::Monday, 1, 'test', offsetDays: 7),
+        'Easter offset too large' => fn(): EasterHoliday => new EasterHoliday('Bad', 61, 'test'),
+        'unnamed holiday' => fn(): FixedDateHoliday => new FixedDateHoliday('', 1, 1, 'test'),
+        'closure without a reason' => fn(): Closure => new Closure(LocalDate::parse('2026-01-02'), '  '),
+    ];
+
+    foreach ($invalid as $case => $make) {
+        expect($make)->toThrow(InvalidDeadlineArgument::class, null, $case);
+    }
+});

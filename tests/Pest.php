@@ -13,7 +13,7 @@ pest()->extend(TestCase::class)->in('Feature/Laravel');
 /**
  * @return array<int, array<string, string>>
  */
-function fixture(string $name): array
+function holidayFixture(string $name): array
 {
     /** @var array<int, array<string, string>> */
     return require __DIR__ . "/Fixtures/{$name}.php";
