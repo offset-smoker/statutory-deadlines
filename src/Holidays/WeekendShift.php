@@ -9,6 +9,12 @@ use OffsetSmoker\StatutoryDeadlines\Weekday;
 
 /**
  * What happens to a fixed-date holiday that falls on a weekend.
+ *
+ * The shifts are written for a Saturday and Sunday weekend, as the statutes
+ * they come from are, and do not follow Calendar::withWeekend(). On a Friday
+ * and Saturday weekend a Sunday holiday is still moved to Monday, leaving the
+ * Sunday a business day; use WeekendShift::None and add the observed day as
+ * its own rule or closure for such a calendar.
  */
 enum WeekendShift
 {

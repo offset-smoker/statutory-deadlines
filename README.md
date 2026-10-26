@@ -233,7 +233,10 @@ $office = $state
 `FixedDateHoliday`, `NthWeekdayHoliday` (nth or last weekday of a month, with
 a day offset), `EasterHoliday` (days from Gregorian Easter) and `Closure`
 (one date) cover the common shapes; implement `HolidayRule` for anything
-else. `withWeekend()` changes the weekend days. A statute's clock is a
+else. `withWeekend()` changes the weekend days; the `WeekendShift` rules
+still assume a Saturday and Sunday weekend (a Sunday holiday moves to
+Monday whatever the calendar's weekend), so pair a different weekend with
+`WeekendShift::None` and explicit observed days. A statute's clock is a
 `DeadlineRule`:
 
 ```php
