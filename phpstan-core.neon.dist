@@ -1,0 +1,12 @@
+# The framework-agnostic core, analysed without Laravel on the path.
+includes:
+  - vendor/phpstan/phpstan-strict-rules/rules.neon
+
+parameters:
+  level: max
+  paths:
+    - src
+    - examples
+  excludePaths:
+    - src/Laravel
+  tmpDir: build/phpstan-core
