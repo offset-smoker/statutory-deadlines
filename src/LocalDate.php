@@ -35,7 +35,7 @@ final readonly class LocalDate implements Stringable
      */
     public static function parse(string $date): self
     {
-        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date, $parts) !== 1) {
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})\z/', $date, $parts) !== 1) {
             throw new InvalidDeadlineArgument(sprintf('"%s" is not a date in Y-m-d form.', $date));
         }
 

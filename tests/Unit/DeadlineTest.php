@@ -208,7 +208,7 @@ describe('receipt cutoffs', function (): void {
 
     it('refuses cutoffs that are not HH:MM 24-hour times', function (string $time): void {
         Cutoff::parse($time);
-    })->throws(InvalidDeadlineArgument::class)->with(['4:30', '16:30:00', '4:30pm', '24:00', '12:60', '']);
+    })->throws(InvalidDeadlineArgument::class)->with(['4:30', '16:30:00', '4:30pm', '24:00', '12:60', '', "16:30\n"]);
 
     it('refuses impossible hours and minutes', function (): void {
         expect(fn(): Cutoff => new Cutoff(24))->toThrow(InvalidDeadlineArgument::class)

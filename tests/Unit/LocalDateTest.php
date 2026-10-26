@@ -20,6 +20,7 @@ it('refuses malformed and impossible dates', function (string $input): void {
 })->throws(InvalidDeadlineArgument::class)->with([
     'no padding' => '2026-7-3',
     'time attached' => '2026-07-03 10:00',
+    'trailing newline' => "2026-07-03\n",
     'not a date' => 'tomorrow',
     'month 13' => '2026-13-01',
     'April 31' => '2026-04-31',

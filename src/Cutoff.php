@@ -29,7 +29,7 @@ final readonly class Cutoff implements Stringable
      */
     public static function parse(string $time): self
     {
-        if (preg_match('/^([01]\d|2[0-3]):([0-5]\d)$/', $time, $parts) !== 1) {
+        if (preg_match('/^([01]\d|2[0-3]):([0-5]\d)\z/', $time, $parts) !== 1) {
             throw new InvalidDeadlineArgument(sprintf('"%s" is not a 24-hour time in HH:MM form.', $time));
         }
 
