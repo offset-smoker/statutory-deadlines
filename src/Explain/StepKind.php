@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Explain;
+namespace OffsetSmoker\StatutoryDeadlines\Explain;
 
 enum StepKind: string
 {
     /** The moment the request arrived, in the deadline's timezone. */
     case Received = 'received';
+
+    /** A cutoff was set and the receipt came before it, on a business day. */
+    case CutoffMet = 'cutoff_met';
 
     /** Receipt moved to the next business day (after the cutoff, or on a closed day). */
     case DeemedReceived = 'deemed_received';

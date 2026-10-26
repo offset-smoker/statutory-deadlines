@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays;
+namespace OffsetSmoker\StatutoryDeadlines;
 
 /**
  * The built-in calendars by a stable string name, for configuration files.

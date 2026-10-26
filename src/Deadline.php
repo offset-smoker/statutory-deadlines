@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays;
+namespace OffsetSmoker\StatutoryDeadlines;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
-use Exception;
-use OffsetSmoker\PaBusinessDays\Exceptions\InvalidDeadlineArgument;
-use OffsetSmoker\PaBusinessDays\Explain\Explanation;
-use OffsetSmoker\PaBusinessDays\Explain\Step;
-use OffsetSmoker\PaBusinessDays\Explain\StepKind;
+use OffsetSmoker\StatutoryDeadlines\Exceptions\InvalidDeadlineArgument;
+use OffsetSmoker\StatutoryDeadlines\Explain\Explanation;
+use OffsetSmoker\StatutoryDeadlines\Explain\Step;
+use OffsetSmoker\StatutoryDeadlines\Explain\StepKind;
+use OffsetSmoker\StatutoryDeadlines\Support\Timezone;
 
 /**
  * A due date counted from the moment something was received.
@@ -27,7 +27,7 @@ use OffsetSmoker\PaBusinessDays\Explain\StepKind;
  * returns the same class you passed in (a CarbonImmutable stays a
  * CarbonImmutable); a mutable DateTime comes back as a DateTimeImmutable.
  *
- * @template TDate of DateTimeImmutable
+ * @template-covariant TDate of DateTimeImmutable
  */
 final readonly class Deadline
 {
@@ -42,6 +42,8 @@ final readonly class Deadline
         private bool $countReceiptDay,
         private ?Period $period,
         private array $extensions,
+        private ?string $rule = null,
+        private ?string $ruleCitation = null,
     ) {}
 
     /**
@@ -53,15 +55,33 @@ final readonly class Deadline
      */
     public static function from(DateTimeInterface $received, Calendar $calendar, DateTimeZone|string|null $timezone = null): self
     {
-        $zone = $timezone === null ? null : self::resolveTimezone($timezone);
+        $zone = $timezone === null ? null : Timezone::resolve($timezone);
 
         if ($received instanceof DateTimeImmutable) {
-            return new self($zone === null ? $received : $received->setTimezone($zone), $calendar, null, false, null, []);
+            return new self($zone === null ? $received : $received->setTimezone($zone), $calendar, null, false, null, [], null, null);
         }
 
         $immutable = DateTimeImmutable::createFromInterface($received);
 
-        return new self($zone === null ? $immutable : $immutable->setTimezone($zone), $calendar, null, false, null, []);
+        return new self($zone === null ? $immutable : $immutable->setTimezone($zone), $calendar, null, false, null, [], null, null);
+    }
+
+    /**
+     * Starts from a calendar date rather than a moment, for clocks that run
+     * from a date (a mailing date, a decision date). The start is midnight of
+     * that date in $timezone, so a date never slides to the day before when
+     * the timezone is west of UTC.
+     *
+     * @return self<DateTimeImmutable>
+     */
+    public static function fromDate(LocalDate|string $date, Calendar $calendar, DateTimeZone|string $timezone): self
+    {
+        $day = $date instanceof LocalDate ? $date : LocalDate::parse($date);
+        $start = (new DateTimeImmutable('now', Timezone::resolve($timezone)))
+            ->setDate($day->year, $day->month, $day->day)
+            ->setTime(0, 0);
+
+        return new self($start, $calendar, null, false, null, [], null, null);
     }
 
     /**
@@ -87,12 +107,37 @@ final readonly class Deadline
     }
 
     /**
-     * Adds a period counted from the day after the current due date.
-     * Extensions stack in the order they are added.
+     * Sets the first period from a Period value (what DeadlineRule uses).
      *
      * @return self<TDate>
      */
-    public function extendBy(int $count, Unit $unit, bool $rollForward = true): self
+    public function counting(Period $period): self
+    {
+        return $this->withPeriod($period);
+    }
+
+    /**
+     * Names the statute or rule this deadline implements, for the explanation.
+     *
+     * @return self<TDate>
+     */
+    public function governedBy(string $rule, string $citation): self
+    {
+        if (trim($rule) === '' || trim($citation) === '') {
+            throw new InvalidDeadlineArgument('A rule needs a name and a citation.');
+        }
+
+        return new self($this->received, $this->calendar, $this->cutoff, $this->countReceiptDay, $this->period, $this->extensions, $rule, $citation);
+    }
+
+    /**
+     * Adds a period counted from the day after the current due date.
+     * Extensions stack in the order they are added. $citation, if given, is
+     * shown in the explanation.
+     *
+     * @return self<TDate>
+     */
+    public function extendBy(int $count, Unit $unit, bool $rollForward = true, ?string $citation = null): self
     {
         return new self(
             $this->received,
@@ -100,7 +145,9 @@ final readonly class Deadline
             $this->cutoff,
             $this->countReceiptDay,
             $this->period,
-            [...$this->extensions, new Period($count, $unit, $rollForward)],
+            [...$this->extensions, new Period($count, $unit, $rollForward, $citation)],
+            $this->rule,
+            $this->ruleCitation,
         );
     }
 
@@ -114,7 +161,7 @@ final readonly class Deadline
     {
         $parsed = $cutoff instanceof Cutoff ? $cutoff : Cutoff::parse($cutoff);
 
-        return new self($this->received, $this->calendar, $parsed, $this->countReceiptDay, $this->period, $this->extensions);
+        return new self($this->received, $this->calendar, $parsed, $this->countReceiptDay, $this->period, $this->extensions, $this->rule, $this->ruleCitation);
     }
 
     /**
@@ -122,7 +169,7 @@ final readonly class Deadline
      */
     public function withoutCutoff(): self
     {
-        return new self($this->received, $this->calendar, null, $this->countReceiptDay, $this->period, $this->extensions);
+        return new self($this->received, $this->calendar, null, $this->countReceiptDay, $this->period, $this->extensions, $this->rule, $this->ruleCitation);
     }
 
     /**
@@ -134,7 +181,7 @@ final readonly class Deadline
      */
     public function countReceiptDay(bool $counts = true): self
     {
-        return new self($this->received, $this->calendar, $this->cutoff, $counts, $this->period, $this->extensions);
+        return new self($this->received, $this->calendar, $this->cutoff, $counts, $this->period, $this->extensions, $this->rule, $this->ruleCitation);
     }
 
     /**
@@ -155,6 +202,11 @@ final readonly class Deadline
     public function timezone(): DateTimeZone
     {
         return $this->received->getTimezone();
+    }
+
+    public function rule(): ?string
+    {
+        return $this->rule;
     }
 
     /**
@@ -214,8 +266,9 @@ final readonly class Deadline
 
         foreach ($this->extensions as $extension) {
             $steps[] = new Step(StepKind::Extended, $due, sprintf(
-                'Extended by %s, counted from the day after %s.',
+                'Extended by %s%s, counted from the day after %s.',
                 $extension->describe(),
+                $extension->citation === null ? '' : " ({$extension->citation})",
                 $due->describe(),
             ));
             $due = $this->count($extension, $due->addDays(1), $steps);
@@ -223,7 +276,7 @@ final readonly class Deadline
 
         $steps[] = new Step(StepKind::Due, $due, sprintf('Due %s.', $due->describe()));
 
-        return new Explanation($due, $this->calendar->name, $this->timezone()->getName(), $steps);
+        return new Explanation($due, $this->calendar->name, $this->timezone()->getName(), $steps, $this->rule, $this->ruleCitation);
     }
 
     /**
@@ -242,6 +295,11 @@ final readonly class Deadline
         } elseif ($this->cutoff->isReachedBy($this->received)) {
             $reason = sprintf('Received at or after the %s cutoff', $this->cutoff->toString());
         } else {
+            $steps[] = new Step(StepKind::CutoffMet, $receipt, sprintf(
+                'Received before the %s cutoff on a business day, so it counts as received that day.',
+                $this->cutoff->toString(),
+            ));
+
             return $receipt;
         }
 
@@ -348,7 +406,9 @@ final readonly class Deadline
         }
 
         foreach ($observed as $holiday) {
-            $reasons[] = $holiday->describe();
+            $reasons[] = $holiday->isShifted() && $holiday->observedCitation !== null
+                ? "{$holiday->describe()} under {$holiday->observedCitation}"
+                : $holiday->describe();
         }
 
         foreach ($this->calendar->holidaysFallingOn($day) as $holiday) {
@@ -371,19 +431,6 @@ final readonly class Deadline
      */
     private function withPeriod(Period $period): self
     {
-        return new self($this->received, $this->calendar, $this->cutoff, $this->countReceiptDay, $period, $this->extensions);
-    }
-
-    private static function resolveTimezone(DateTimeZone|string $timezone): DateTimeZone
-    {
-        if ($timezone instanceof DateTimeZone) {
-            return $timezone;
-        }
-
-        try {
-            return new DateTimeZone($timezone);
-        } catch (Exception) {
-            throw new InvalidDeadlineArgument(sprintf('"%s" is not a known timezone.', $timezone));
-        }
+        return new self($this->received, $this->calendar, $this->cutoff, $this->countReceiptDay, $period, $this->extensions, $this->rule, $this->ruleCitation);
     }
 }

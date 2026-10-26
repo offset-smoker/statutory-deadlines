@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays;
+namespace OffsetSmoker\StatutoryDeadlines;
 
 enum Unit: string
 {

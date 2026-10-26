@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Exceptions;
+namespace OffsetSmoker\StatutoryDeadlines\Exceptions;
 
 use OutOfRangeException;
 

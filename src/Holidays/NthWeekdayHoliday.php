@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Holidays;
+namespace OffsetSmoker\StatutoryDeadlines\Holidays;
 
-use OffsetSmoker\PaBusinessDays\Exceptions\InvalidDeadlineArgument;
-use OffsetSmoker\PaBusinessDays\LocalDate;
-use OffsetSmoker\PaBusinessDays\Weekday;
+use OffsetSmoker\StatutoryDeadlines\Exceptions\InvalidDeadlineArgument;
+use OffsetSmoker\StatutoryDeadlines\LocalDate;
+use OffsetSmoker\StatutoryDeadlines\Weekday;
 
 /**
  * A floating holiday: the nth (or last) given weekday of a month, plus an

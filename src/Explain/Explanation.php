@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Explain;
+namespace OffsetSmoker\StatutoryDeadlines\Explain;
 
-use OffsetSmoker\PaBusinessDays\LocalDate;
+use OffsetSmoker\StatutoryDeadlines\LocalDate;
 use Stringable;
 
 /**
@@ -21,6 +21,8 @@ final readonly class Explanation implements Stringable
         public string $calendar,
         public string $timezone,
         public array $steps,
+        public ?string $rule = null,
+        public ?string $citation = null,
     ) {}
 
     /**
@@ -43,11 +45,13 @@ final readonly class Explanation implements Stringable
     }
 
     /**
-     * @return array{due: string, calendar: string, timezone: string, steps: list<array{kind: string, date: string, description: string, day: int|null, holidays: list<array{name: string, date: string, observed: string, citation: string, observed_citation: string|null}>}>}
+     * @return array{rule: string|null, citation: string|null, due: string, calendar: string, timezone: string, steps: list<array{kind: string, date: string, description: string, day: int|null, holidays: list<array{name: string, date: string, observed: string, citation: string, observed_citation: string|null}>}>}
      */
     public function toArray(): array
     {
         return [
+            'rule' => $this->rule,
+            'citation' => $this->citation,
             'due' => $this->due->toString(),
             'calendar' => $this->calendar,
             'timezone' => $this->timezone,
@@ -57,7 +61,8 @@ final readonly class Explanation implements Stringable
 
     public function toString(): string
     {
-        $lines = [sprintf('Calendar: %s. Timezone: %s.', $this->calendar, $this->timezone)];
+        $lines = $this->rule === null ? [] : [sprintf('Rule: %s (%s).', $this->rule, $this->citation)];
+        $lines[] = sprintf('Calendar: %s. Timezone: %s.', $this->calendar, $this->timezone);
 
         foreach ($this->steps as $step) {
             $lines[] = sprintf('%s  %-14s %s', $step->date->toString(), $step->kind->value, $step->description);

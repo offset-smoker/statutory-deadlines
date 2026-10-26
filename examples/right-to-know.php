@@ -9,9 +9,9 @@ declare(strict_types=1);
  *     php examples/right-to-know.php
  */
 
-use OffsetSmoker\PaBusinessDays\Calendar;
-use OffsetSmoker\PaBusinessDays\Deadline;
-use OffsetSmoker\PaBusinessDays\Unit;
+use OffsetSmoker\StatutoryDeadlines\Calendar;
+use OffsetSmoker\StatutoryDeadlines\Deadline;
+use OffsetSmoker\StatutoryDeadlines\Unit;
 
 require __DIR__ . '/../vendor/autoload.php';
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Holidays;
+namespace OffsetSmoker\StatutoryDeadlines\Holidays;
 
-use OffsetSmoker\PaBusinessDays\LocalDate;
+use OffsetSmoker\StatutoryDeadlines\LocalDate;
 
 /**
  * One occurrence of a holiday: the date the law names, and the date it is

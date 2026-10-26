@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays;
+namespace OffsetSmoker\StatutoryDeadlines;
 
 use DateTimeInterface;
-use OffsetSmoker\PaBusinessDays\Exceptions\InvalidDeadlineArgument;
-use OffsetSmoker\PaBusinessDays\Exceptions\UnsupportedYear;
-use OffsetSmoker\PaBusinessDays\Holidays\Closure;
-use OffsetSmoker\PaBusinessDays\Holidays\FederalHolidays;
-use OffsetSmoker\PaBusinessDays\Holidays\HolidayRule;
-use OffsetSmoker\PaBusinessDays\Holidays\Observance;
-use OffsetSmoker\PaBusinessDays\Holidays\PennsylvaniaHolidays;
+use OffsetSmoker\StatutoryDeadlines\Exceptions\InvalidDeadlineArgument;
+use OffsetSmoker\StatutoryDeadlines\Exceptions\UnsupportedYear;
+use OffsetSmoker\StatutoryDeadlines\Holidays\Closure;
+use OffsetSmoker\StatutoryDeadlines\Holidays\FederalHolidays;
+use OffsetSmoker\StatutoryDeadlines\Holidays\HolidayRule;
+use OffsetSmoker\StatutoryDeadlines\Holidays\Observance;
+use OffsetSmoker\StatutoryDeadlines\Holidays\PennsylvaniaHolidays;
 
 /**
  * Which days are business days: every day that is not a weekend day and on

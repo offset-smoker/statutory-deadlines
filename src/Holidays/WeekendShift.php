@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Holidays;
+namespace OffsetSmoker\StatutoryDeadlines\Holidays;
 
-use OffsetSmoker\PaBusinessDays\LocalDate;
-use OffsetSmoker\PaBusinessDays\Weekday;
+use OffsetSmoker\StatutoryDeadlines\LocalDate;
+use OffsetSmoker\StatutoryDeadlines\Weekday;
 
 /**
  * What happens to a fixed-date holiday that falls on a weekend.

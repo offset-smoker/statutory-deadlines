@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays;
+namespace OffsetSmoker\StatutoryDeadlines;
 
 use DateTimeInterface;
-use OffsetSmoker\PaBusinessDays\Exceptions\InvalidDeadlineArgument;
+use OffsetSmoker\StatutoryDeadlines\Exceptions\InvalidDeadlineArgument;
 use Stringable;
 
 /**

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Explain;
+namespace OffsetSmoker\StatutoryDeadlines\Explain;
 
-use OffsetSmoker\PaBusinessDays\Holidays\Observance;
-use OffsetSmoker\PaBusinessDays\LocalDate;
+use OffsetSmoker\StatutoryDeadlines\Holidays\Observance;
+use OffsetSmoker\StatutoryDeadlines\LocalDate;
 
 final readonly class Step
 {

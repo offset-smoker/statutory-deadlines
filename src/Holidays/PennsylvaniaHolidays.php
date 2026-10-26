@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Holidays;
+namespace OffsetSmoker\StatutoryDeadlines\Holidays;
 
-use OffsetSmoker\PaBusinessDays\Weekday;
+use OffsetSmoker\StatutoryDeadlines\Weekday;
 
 /**
  * The legal holidays of the Commonwealth of Pennsylvania.

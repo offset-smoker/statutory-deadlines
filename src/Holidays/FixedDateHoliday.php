@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Holidays;
+namespace OffsetSmoker\StatutoryDeadlines\Holidays;
 
-use OffsetSmoker\PaBusinessDays\Exceptions\InvalidDeadlineArgument;
-use OffsetSmoker\PaBusinessDays\LocalDate;
+use OffsetSmoker\StatutoryDeadlines\Exceptions\InvalidDeadlineArgument;
+use OffsetSmoker\StatutoryDeadlines\LocalDate;
 
 /**
  * A holiday on the same month and day every year (July 4, December 25),

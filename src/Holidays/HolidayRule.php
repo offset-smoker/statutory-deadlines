@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Holidays;
+namespace OffsetSmoker\StatutoryDeadlines\Holidays;
 
 /**
  * A rule that generates a holiday (or a closure) for any year.

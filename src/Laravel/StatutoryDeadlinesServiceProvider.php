@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays\Laravel;
+namespace OffsetSmoker\StatutoryDeadlines\Laravel;
 
 use DateTimeZone;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
-use OffsetSmoker\PaBusinessDays\BuiltInCalendar;
-use OffsetSmoker\PaBusinessDays\Calendar;
-use OffsetSmoker\PaBusinessDays\Cutoff;
-use OffsetSmoker\PaBusinessDays\DeadlineFactory;
-use OffsetSmoker\PaBusinessDays\Exceptions\InvalidDeadlineArgument;
-use OffsetSmoker\PaBusinessDays\LocalDate;
+use OffsetSmoker\StatutoryDeadlines\BuiltInCalendar;
+use OffsetSmoker\StatutoryDeadlines\Calendar;
+use OffsetSmoker\StatutoryDeadlines\Cutoff;
+use OffsetSmoker\StatutoryDeadlines\DeadlineFactory;
+use OffsetSmoker\StatutoryDeadlines\Exceptions\InvalidDeadlineArgument;
+use OffsetSmoker\StatutoryDeadlines\LocalDate;
 
-final class PaBusinessDaysServiceProvider extends ServiceProvider
+final class StatutoryDeadlinesServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../../config/pa-business-days.php', 'pa-business-days');
+        $this->mergeConfigFrom(__DIR__ . '/../../config/statutory-deadlines.php', 'statutory-deadlines');
 
         $this->app->singleton(DeadlineFactory::class, static fn(Application $app): DeadlineFactory => self::factoryFrom($app->make(Repository::class)));
 
@@ -30,8 +30,8 @@ final class PaBusinessDaysServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../../config/pa-business-days.php' => $this->app->configPath('pa-business-days.php'),
-            ], 'pa-business-days-config');
+                __DIR__ . '/../../config/statutory-deadlines.php' => $this->app->configPath('statutory-deadlines.php'),
+            ], 'statutory-deadlines-config');
         }
     }
 
@@ -41,20 +41,20 @@ final class PaBusinessDaysServiceProvider extends ServiceProvider
      */
     public static function factoryFrom(Repository $config): DeadlineFactory
     {
-        $name = $config->get('pa-business-days.calendar');
+        $name = $config->get('statutory-deadlines.calendar');
         $builtIn = is_string($name) ? BuiltInCalendar::tryFrom($name) : null;
 
         if ($builtIn === null) {
             throw InvalidConfiguration::forKey('calendar', 'one of "pennsylvania", "federal" or "pennsylvania+federal"');
         }
 
-        $calendar = self::withClosures($builtIn->calendar(), $config->get('pa-business-days.closures', []));
+        $calendar = self::withClosures($builtIn->calendar(), $config->get('statutory-deadlines.closures', []));
 
         return new DeadlineFactory(
             $calendar,
-            self::timezone($config->get('pa-business-days.timezone')),
-            self::cutoff($config->get('pa-business-days.cutoff')),
-            self::countReceiptDay($config->get('pa-business-days.count_receipt_day', false)),
+            self::timezone($config->get('statutory-deadlines.timezone')),
+            self::cutoff($config->get('statutory-deadlines.cutoff')),
+            self::countReceiptDay($config->get('statutory-deadlines.count_receipt_day', false)),
         );
     }
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OffsetSmoker\PaBusinessDays;
+namespace OffsetSmoker\StatutoryDeadlines;
 
 /**
  * ISO-8601 day of the week: Monday is 1, Sunday is 7, matching PHP's
