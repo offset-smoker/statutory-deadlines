@@ -258,7 +258,7 @@ php artisan vendor:publish --tag=statutory-deadlines-config
 | `calendar` | `STATUTORY_DEADLINES_CALENDAR` | `pennsylvania` | `pennsylvania`, `federal` or `pennsylvania+federal` |
 | `timezone` | `STATUTORY_DEADLINES_TIMEZONE` | `America/New_York` | The office's timezone |
 | `cutoff` | `STATUTORY_DEADLINES_CUTOFF` | none | `HH:MM`, 24-hour |
-| `count_receipt_day` | `STATUTORY_DEADLINES_COUNT_RECEIPT_DAY` | `false` | Whether the day of receipt is day 1 |
+| `count_receipt_day` | `STATUTORY_DEADLINES_COUNT_RECEIPT_DAY` | `false` | Whether the day of receipt is day 1; `true` or `false` only (`no`, `off` or `1` is refused) |
 | `closures` | | `[]` | `[['date' => 'Y-m-d', 'reason' => '...']]` |
 
 ```php

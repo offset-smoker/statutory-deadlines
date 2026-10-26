@@ -110,3 +110,36 @@ it('offers the config file for publishing', function (): void {
         ->and(array_key_first($paths))->toEndWith('config/statutory-deadlines.php')
         ->and(array_values($paths)[0])->toBe(config_path('statutory-deadlines.php'));
 });
+
+/**
+ * Reads the shipped config file with STATUTORY_DEADLINES_COUNT_RECEIPT_DAY set
+ * to $value, as `php artisan` would after loading .env, and rebuilds the factory.
+ */
+function factoryWithReceiptDayEnv(string $value): DeadlineFactory
+{
+    putenv("STATUTORY_DEADLINES_COUNT_RECEIPT_DAY={$value}");
+
+    try {
+        /** @var array<string, mixed> $config */
+        $config = require __DIR__ . '/../../../config/statutory-deadlines.php';
+    } finally {
+        putenv('STATUTORY_DEADLINES_COUNT_RECEIPT_DAY');
+    }
+
+    config()->set('statutory-deadlines', $config);
+
+    return freshFactory();
+}
+
+it('reads the receipt-day flag from the environment', function (string $value, bool $expected): void {
+    expect(factoryWithReceiptDayEnv($value)->countsReceiptDay())->toBe($expected);
+})->with([
+    'true' => ['true', true],
+    'false' => ['false', false],
+    '(true)' => ['(true)', true],
+]);
+
+it('refuses a receipt-day env value that is not true or false', function (string $value): void {
+    expect(fn(): DeadlineFactory => factoryWithReceiptDayEnv($value))
+        ->toThrow(InvalidConfiguration::class, 'statutory-deadlines.count_receipt_day');
+})->with(['no', 'off', 'yes', '1', '0']);

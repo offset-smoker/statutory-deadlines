@@ -27,9 +27,10 @@ return [
     /*
      * Whether the day of receipt counts as day one. Statutory periods in
      * Pennsylvania exclude the first day (1 Pa.C.S. § 1908), so the default
-     * is false.
+     * is false. In .env write true or false; any other value (no, off, 1)
+     * is refused when the factory is resolved rather than guessed at.
      */
-    'count_receipt_day' => (bool) env('STATUTORY_DEADLINES_COUNT_RECEIPT_DAY', false),
+    'count_receipt_day' => env('STATUTORY_DEADLINES_COUNT_RECEIPT_DAY', false),
 
     /*
      * Extra days the office is closed, each with the reason the explanation
