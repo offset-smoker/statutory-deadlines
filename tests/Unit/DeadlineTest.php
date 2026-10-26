@@ -320,9 +320,24 @@ describe('the explanation', function (): void {
 
         expect($text)->toContain('Rule: Example rule (Example Code § 1).')
             ->and($text)->toContain('Calendar: Pennsylvania. Timezone: America/New_York.')
-            ->and($text)->toContain('2026-11-20  received       Received Friday 20 November 2026 at 12:00:00 (America/New_York).')
-            ->and($text)->toContain('2026-11-26  skipped        Skipped Thursday 26 November 2026: Thanksgiving Day.')
-            ->and($text)->toContain('2026-11-30  due            Due Monday 30 November 2026.');
+            ->and($text)->toContain('2026-11-20  received        Received Friday 20 November 2026 at 12:00:00 (America/New_York).')
+            ->and($text)->toContain('2026-11-26  skipped         Skipped Thursday 26 November 2026: Thanksgiving Day.')
+            ->and($text)->toContain('2026-11-30  due             Due Monday 30 November 2026.');
+    });
+
+    it('lines up the step text in one column, whatever the step kind', function (): void {
+        $text = (string) pa('2026-07-02 17:05')->withCutoff('16:30')->businessDays(5)->extendBy(30, Unit::CalendarDays)->explain();
+        $stepLines = array_values(array_filter(explode("\n", $text), static fn(string $line): bool => preg_match('/^\d{4}-\d{2}-\d{2}  /', $line) === 1));
+        // Where the description starts: after the date, the kind and the padding.
+        $columns = array_unique(array_map(static function (string $line): int {
+            preg_match('/^\S+  \S+ +/', $line, $match);
+
+            return strlen($match[0]);
+        }, $stepLines));
+
+        expect($text)->toContain('deemed_received')
+            ->and($text)->toContain('rolled_forward')
+            ->and($columns)->toHaveCount(1);
     });
 
     it('exports a JSON-ready array', function (): void {

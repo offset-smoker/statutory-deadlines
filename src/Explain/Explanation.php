@@ -64,8 +64,10 @@ final readonly class Explanation implements Stringable
         $lines = $this->rule === null ? [] : [sprintf('Rule: %s (%s).', $this->rule, $this->citation)];
         $lines[] = sprintf('Calendar: %s. Timezone: %s.', $this->calendar, $this->timezone);
 
+        $width = max(array_map(static fn(StepKind $kind): int => strlen($kind->value), StepKind::cases()));
+
         foreach ($this->steps as $step) {
-            $lines[] = sprintf('%s  %-14s %s', $step->date->toString(), $step->kind->value, $step->description);
+            $lines[] = sprintf('%s  %s %s', $step->date->toString(), str_pad($step->kind->value, $width), $step->description);
         }
 
         return implode("\n", $lines);

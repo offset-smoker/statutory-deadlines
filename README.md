@@ -59,21 +59,21 @@ line prints:
 ```text
 Rule: Pennsylvania Right-to-Know Law, latest response date under an extension notice (65 P.S. § 67.901; 65 P.S. § 67.902(b)(2)).
 Calendar: Pennsylvania. Timezone: America/New_York.
-2026-07-02  received       Received Thursday 2 July 2026 at 17:05:00 (America/New_York).
+2026-07-02  received        Received Thursday 2 July 2026 at 17:05:00 (America/New_York).
 2026-07-03  deemed_received Received at or after the 16:30 cutoff, so it is deemed received on the next business day, Friday 3 July 2026.
-2026-07-03  receipt_day    The day of receipt is not counted; counting starts the next day.
-2026-07-04  skipped        Skipped Saturday 4 July 2026: Saturday (weekend); Independence Day.
-2026-07-05  skipped        Skipped Sunday 5 July 2026: Sunday (weekend).
-2026-07-06  counted        Business day 1 of 5.
-2026-07-07  counted        Business day 2 of 5.
-2026-07-08  counted        Business day 3 of 5.
-2026-07-09  counted        Business day 4 of 5.
-2026-07-10  counted        Business day 5 of 5.
-2026-07-10  extended       Extended by 30 calendar days (65 P.S. § 67.902(b)(2)), counted from the day after Friday 10 July 2026.
-2026-08-09  counted        30 calendar days counted: Saturday 11 July 2026 through Sunday 9 August 2026.
-2026-08-09  skipped        Skipped Sunday 9 August 2026: Sunday (weekend).
-2026-08-10  rolled_forward Day 30 is not a business day, so the period ends on the next business day, Monday 10 August 2026.
-2026-08-10  due            Due Monday 10 August 2026.
+2026-07-03  receipt_day     The day of receipt is not counted; counting starts the next day.
+2026-07-04  skipped         Skipped Saturday 4 July 2026: Saturday (weekend); Independence Day.
+2026-07-05  skipped         Skipped Sunday 5 July 2026: Sunday (weekend).
+2026-07-06  counted         Business day 1 of 5.
+2026-07-07  counted         Business day 2 of 5.
+2026-07-08  counted         Business day 3 of 5.
+2026-07-09  counted         Business day 4 of 5.
+2026-07-10  counted         Business day 5 of 5.
+2026-07-10  extended        Extended by 30 calendar days (65 P.S. § 67.902(b)(2)), counted from the day after Friday 10 July 2026.
+2026-08-09  counted         30 calendar days counted: Saturday 11 July 2026 through Sunday 9 August 2026.
+2026-08-09  skipped         Skipped Sunday 9 August 2026: Sunday (weekend).
+2026-08-10  rolled_forward  Day 30 is not a business day, so the period ends on the next business day, Monday 10 August 2026.
+2026-08-10  due             Due Monday 10 August 2026.
 ```
 
 `explain()->toArray()` gives the same steps as data (each skipped day carries
