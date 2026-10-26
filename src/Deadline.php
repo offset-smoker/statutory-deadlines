@@ -11,6 +11,7 @@ use OffsetSmoker\StatutoryDeadlines\Exceptions\InvalidDeadlineArgument;
 use OffsetSmoker\StatutoryDeadlines\Explain\Explanation;
 use OffsetSmoker\StatutoryDeadlines\Explain\Step;
 use OffsetSmoker\StatutoryDeadlines\Explain\StepKind;
+use OffsetSmoker\StatutoryDeadlines\Support\Memo;
 use OffsetSmoker\StatutoryDeadlines\Support\Timezone;
 
 /**
@@ -26,11 +27,17 @@ use OffsetSmoker\StatutoryDeadlines\Support\Timezone;
  * timezone, so daylight-saving changes cannot shift the result. `due()`
  * returns the same class you passed in (a CarbonImmutable stays a
  * CarbonImmutable); a mutable DateTime comes back as a DateTimeImmutable.
+ * The period and its extensions may count at most Period::MAX_DAYS days in
+ * all, and the result is worked out once per Deadline however often it is
+ * read.
  *
  * @template-covariant TDate of DateTimeImmutable
  */
 final readonly class Deadline
 {
+    /** @var Memo<int, Explanation> */
+    private Memo $explanation;
+
     /**
      * @param  TDate  $received  Already in the deadline's timezone.
      * @param  list<Period>  $extensions
@@ -44,7 +51,11 @@ final readonly class Deadline
         private array $extensions,
         private ?string $rule = null,
         private ?string $ruleCitation = null,
-    ) {}
+    ) {
+        Period::ensureWithinTotal($period === null ? $extensions : [$period, ...$extensions]);
+
+        $this->explanation = new Memo();
+    }
 
     /**
      * @template TFrom of DateTimeInterface
@@ -249,6 +260,11 @@ final readonly class Deadline
     }
 
     public function explain(): Explanation
+    {
+        return $this->explanation->remember(0, $this->work(...));
+    }
+
+    private function work(): Explanation
     {
         $steps = [new Step(StepKind::Received, LocalDate::of($this->received), sprintf(
             'Received %s at %s (%s).',

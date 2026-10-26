@@ -16,7 +16,11 @@ use OffsetSmoker\StatutoryDeadlines\Exceptions\InvalidDeadlineArgument;
  */
 final readonly class Period
 {
-    /** Ten years of days; a bound on the work one deadline can ask for. */
+    /**
+     * Ten years of days: the most one period may count, and the most a
+     * deadline's period and extensions may count together. It bounds the
+     * work any one deadline can ask for.
+     */
     public const int MAX_DAYS = 3660;
 
     public function __construct(
@@ -27,6 +31,24 @@ final readonly class Period
     ) {
         if ($count < 1 || $count > self::MAX_DAYS) {
             throw new InvalidDeadlineArgument(sprintf('A period must be between 1 and %d days; got %d.', self::MAX_DAYS, $count));
+        }
+    }
+
+    /**
+     * Refuses periods that together count more than MAX_DAYS.
+     *
+     * @param  list<self>  $periods
+     */
+    public static function ensureWithinTotal(array $periods): void
+    {
+        $total = array_sum(array_map(static fn(self $period): int => $period->count, $periods));
+
+        if ($total > self::MAX_DAYS) {
+            throw new InvalidDeadlineArgument(sprintf(
+                'A deadline can count at most %d days in all, its period and extensions together; got %d.',
+                self::MAX_DAYS,
+                $total,
+            ));
         }
     }
 

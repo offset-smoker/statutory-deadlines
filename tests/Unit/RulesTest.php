@@ -118,6 +118,13 @@ describe('DeadlineRule', function (): void {
             ->and((string) $deadline->explain())->toContain('(Example Code § 1-102)');
     });
 
+    it('refuses a rule whose period and extensions exceed the bound together', function (): void {
+        new DeadlineRule('Example', 'Example Code § 3', new Period(3000, Unit::BusinessDays), [
+            new Period(600, Unit::BusinessDays),
+            new Period(61, Unit::CalendarDays),
+        ]);
+    })->throws(InvalidDeadlineArgument::class, 'at most 3660 days in all');
+
     it('applies from a date as well as from a moment', function (): void {
         $rule = new DeadlineRule('Example', 'Example Code § 2', new Period(3, Unit::BusinessDays));
 

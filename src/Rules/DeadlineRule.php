@@ -46,6 +46,8 @@ final readonly class DeadlineRule
             throw new InvalidDeadlineArgument('A rule needs a name and a citation.');
         }
 
+        Period::ensureWithinTotal([$period, ...$extensions]);
+
         $this->extensions = $extensions;
     }
 

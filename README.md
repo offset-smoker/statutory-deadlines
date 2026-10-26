@@ -319,6 +319,9 @@ Version 0.1.0. What it does not do:
   "secular or business days, for all other purposes than those mentioned in
   this act". The library lets you choose the calendar; it does not decide.
 - Only the Right-to-Know Law clocks listed above are built in.
+- A deadline counts at most 3,660 days, its period and every extension
+  together; longer ones throw `InvalidDeadlineArgument`. That bounds the
+  work a deadline built from user input can ask for.
 
 Name: the package started as `pa-business-days` and was renamed
 `statutory-deadlines` before release, because the rules and calendars are

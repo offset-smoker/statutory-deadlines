@@ -89,6 +89,25 @@ describe('business days', function (): void {
         pa('2026-10-26 10:00', $count);
     })->throws(InvalidDeadlineArgument::class)->with([0, -5, 3661]);
 
+    it('explains a deadline once, however many times it is asked', function (): void {
+        $deadline = pa('2026-10-26 10:00')->extendBy(30, Unit::CalendarDays);
+
+        expect($deadline->explain())->toBe($deadline->explain())
+            ->and($deadline->dueDate())->toBe($deadline->explain()->due);
+    });
+
+    it('bounds the days a deadline counts, extensions included', function (): void {
+        $atTheBound = pa('2026-10-26 10:00', 3000)->extendBy(600, Unit::BusinessDays)->extendBy(60, Unit::CalendarDays);
+
+        expect($atTheBound->dueDate()->year)->toBe(2041)
+            ->and(fn(): Deadline => $atTheBound->extendBy(1, Unit::CalendarDays))
+            ->toThrow(InvalidDeadlineArgument::class, 'at most 3660 days in all')
+            ->and(fn(): Deadline => pa('2026-10-26 10:00', 1)->extendBy(3660, Unit::BusinessDays))
+            ->toThrow(InvalidDeadlineArgument::class, 'at most 3660 days in all')
+            ->and(fn(): Deadline => Deadline::from(ny('2026-10-26 10:00'), Calendar::pennsylvania())->extendBy(3660, Unit::BusinessDays)->businessDays(1))
+            ->toThrow(InvalidDeadlineArgument::class, 'at most 3660 days in all');
+    });
+
     it('handles a long period without drifting', function (): void {
         // 250 business days from Monday 5 January 2026 on the federal calendar.
         $deadline = Deadline::from(ny('2026-01-05 09:00'), Calendar::federal())->businessDays(250);

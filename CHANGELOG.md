@@ -15,7 +15,8 @@ All notable changes to this project are documented here. The format follows
 - Receipt cutoffs (receipt at or after the cutoff, or on a closed day, counts
   as the next business day) and a choice of whether the day of receipt counts.
 - Stacked extensions, with optional roll-forward of a calendar-day period
-  whose last day is not a business day.
+  whose last day is not a business day. A deadline counts at most 3,660
+  days, period and extensions together.
 - `Explanation`: every step, including each skipped day with its weekend day,
   holiday and observance rule, as text or as an array.
 - Holiday calendars computed by rule: US federal (5 U.S.C. § 6103, with the

@@ -12,12 +12,15 @@ use OffsetSmoker\StatutoryDeadlines\Holidays\FederalHolidays;
 use OffsetSmoker\StatutoryDeadlines\Holidays\HolidayRule;
 use OffsetSmoker\StatutoryDeadlines\Holidays\Observance;
 use OffsetSmoker\StatutoryDeadlines\Holidays\PennsylvaniaHolidays;
+use OffsetSmoker\StatutoryDeadlines\Support\Memo;
 
 /**
  * Which days are business days: every day that is not a weekend day and on
  * which no holiday or closure is observed.
  *
- * Immutable: every `with...()` method returns a new calendar.
+ * Immutable: every `with...()` method returns a new calendar. Each year's
+ * holidays are generated once per calendar and then looked up by day, so
+ * holiday rules must return the same occurrences every time they are asked.
  */
 final readonly class Calendar
 {
@@ -26,6 +29,12 @@ final readonly class Calendar
 
     /** @var list<Weekday> */
     private array $weekend;
+
+    /** @var Memo<int, list<Observance>> Each rule's occurrences, by the year of their own date. */
+    private Memo $occurrences;
+
+    /** @var Memo<int, array{observed: array<int, list<Observance>>, falling: array<int, list<Observance>>}> By year, then by day number. */
+    private Memo $byDay;
 
     /**
      * @param  list<HolidayRule>  $rules
@@ -53,6 +62,8 @@ final readonly class Calendar
 
         $this->rules = $rules;
         $this->weekend = $weekend;
+        $this->occurrences = new Memo();
+        $this->byDay = new Memo();
     }
 
     /**
@@ -173,12 +184,7 @@ final readonly class Calendar
     {
         $this->guardYear($date->year);
 
-        // An observed date can sit in the year before its holiday (a Saturday
-        // January 1 observed on December 31) or, in principle, the year after.
-        return array_values(array_filter(
-            $this->occurrencesBetween($date->year - 1, $date->year + 1),
-            static fn(Observance $observance): bool => $observance->observed->equals($date),
-        ));
+        return $this->byDay($date->year)['observed'][$date->toDayNumber()] ?? [];
     }
 
     /**
@@ -191,10 +197,7 @@ final readonly class Calendar
     {
         $this->guardYear($date->year);
 
-        return array_values(array_filter(
-            $this->occurrencesBetween($date->year, $date->year),
-            static fn(Observance $observance): bool => $observance->date->equals($date),
-        ));
+        return $this->byDay($date->year)['falling'][$date->toDayNumber()] ?? [];
     }
 
     /**
@@ -209,10 +212,7 @@ final readonly class Calendar
     {
         $this->guardYear($year);
 
-        $observed = array_values(array_filter(
-            $this->occurrencesBetween($year - 1, $year + 1),
-            static fn(Observance $observance): bool => $observance->observed->year === $year,
-        ));
+        $observed = array_merge(...array_values($this->byDay($year)['observed']));
 
         usort($observed, static function (Observance $a, Observance $b): int {
             $byDate = $a->observed->compare($b->observed);
@@ -224,21 +224,55 @@ final readonly class Calendar
     }
 
     /**
+     * The holidays observed in $year and the holidays whose own date is in
+     * $year, each keyed by day number.
+     *
+     * @return array{observed: array<int, list<Observance>>, falling: array<int, list<Observance>>}
+     */
+    private function byDay(int $year): array
+    {
+        return $this->byDay->remember($year, function () use ($year): array {
+            $observed = [];
+            $falling = [];
+
+            // An observed date can sit in the year before its holiday (a Saturday
+            // January 1 observed on December 31) or, in principle, the year after.
+            foreach ([$year - 1, $year, $year + 1] as $from) {
+                foreach ($this->occurrencesIn($from) as $observance) {
+                    if ($observance->observed->year === $year) {
+                        $observed[$observance->observed->toDayNumber()][] = $observance;
+                    }
+                }
+            }
+
+            foreach ($this->occurrencesIn($year) as $observance) {
+                $falling[$observance->date->toDayNumber()][] = $observance;
+            }
+
+            return ['observed' => $observed, 'falling' => $falling];
+        });
+    }
+
+    /**
      * @return list<Observance>
      */
-    private function occurrencesBetween(int $fromYear, int $toYear): array
+    private function occurrencesIn(int $year): array
     {
-        $occurrences = [];
+        if ($year < 1 || $year > 9999) {
+            return [];
+        }
 
-        for ($year = max(1, $fromYear); $year <= min(9999, $toYear); $year++) {
+        return $this->occurrences->remember($year, function () use ($year): array {
+            $occurrences = [];
+
             foreach ($this->rules as $rule) {
                 foreach ($rule->occurrencesIn($year) as $observance) {
                     $occurrences[] = $observance;
                 }
             }
-        }
 
-        return $occurrences;
+            return $occurrences;
+        });
     }
 
     private function guardYear(int $year): void

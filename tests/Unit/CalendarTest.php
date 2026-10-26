@@ -136,3 +136,42 @@ it('refuses nameless calendars and impossible earliest years', function (): void
     expect(fn(): Calendar => new Calendar(' ', []))->toThrow(InvalidDeadlineArgument::class)
         ->and(fn(): Calendar => new Calendar('X', [], earliestYear: 0))->toThrow(InvalidDeadlineArgument::class);
 });
+
+it('generates each year\'s holidays once, however many days it checks', function (): void {
+    $rule = new class implements HolidayRule {
+        /** @var array<int, int> */
+        public array $calls = [];
+
+        public function name(): string
+        {
+            return 'Counted';
+        }
+
+        public function citation(): string
+        {
+            return 'test';
+        }
+
+        public function occurrencesIn(int $year): array
+        {
+            $this->calls[$year] = ($this->calls[$year] ?? 0) + 1;
+            $date = new LocalDate($year, 3, 2);
+
+            return [new Observance('Counted', $date, $date, 'test')];
+        }
+    };
+
+    $calendar = new Calendar('Counted', [$rule]);
+    $day = LocalDate::parse('2026-01-01');
+
+    for ($i = 0; $i < 730; $i++) {
+        $calendar->isBusinessDay($day);
+        $calendar->holidaysFallingOn($day);
+        $day = $day->addDays(1);
+    }
+
+    $calendar->observedIn(2026);
+
+    expect(array_keys($rule->calls))->toBe([2025, 2026, 2027, 2028])
+        ->and(array_unique($rule->calls))->toBe([2025 => 1]);
+});
