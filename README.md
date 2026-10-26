@@ -20,7 +20,8 @@ response, extension and appeal clocks of Pennsylvania's Right-to-Know Law.
 
 - PHP 8.3 or later (CI runs 8.3 and 8.4)
 - No extensions beyond a standard PHP build, and no runtime dependencies
-- Optional: Laravel 12 or 13 for the service provider and facade
+- Optional: Laravel 12 or 13 for the service provider and facade (Composer
+  refuses older Laravel versions)
 - Optional: `nesbot/carbon`, if you want `CarbonImmutable` in and out
 
 ## Installation
@@ -319,8 +320,10 @@ for 2012 through 2030 (`tests/Fixtures/opm-federal-holidays.php`), the
 Pennsylvania rules against dates worked out separately from the statute text
 for 2024 through 2030, Easter against PHP's calendar extension for 1986
 through 2100, and covers observed dates, year boundaries, leap years,
-daylight-saving changes, cutoffs, timezones and stacked extensions. CI runs
-it on PHP 8.3 and 8.4 against Laravel 12 and 13.
+daylight-saving changes, cutoffs, timezones and stacked extensions. The CI
+workflow runs it on PHP 8.3 and 8.4 against Laravel 12 and 13. Before the
+first push, all four combinations were run locally (PHP 8.3.36 and 8.4.27,
+Laravel 12.70 and 13.38): tests and both PHPStan configurations pass on each.
 
 ## Status and limitations
 

@@ -38,6 +38,9 @@
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-strict-rules": "^2.0"
     },
+    "conflict": {
+        "illuminate/support": "<12.0"
+    },
     "suggest": {
         "illuminate/support": "For the optional Laravel service provider and facade (Laravel 12 or 13).",
         "nesbot/carbon": "Pass CarbonImmutable dates in and get CarbonImmutable dates back; not required."
