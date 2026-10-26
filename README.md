@@ -119,6 +119,14 @@ evening before in New York.
   a day that is not a business day, is deemed received on the next business
   day. The explanation records the check either way. There is no cutoff
   unless you set one.
+- **Weekend and holiday receipt.** Setting a cutoff, at any time of day,
+  also switches on the closed-day rule above, and that moves the result.
+  A request received on Saturday 24 October 2026 with five business days
+  and no cutoff is due Friday 30 October: Saturday is the excluded day of
+  receipt and Monday is day 1. With any cutoff it is deemed received on
+  Monday, Monday is excluded, and it is due Monday 2 November. The two
+  cannot be set separately; the explanation's `deemed_received` step says
+  when it happened.
 - **Last day.** A calendar-day period whose last day is a weekend day or
   holiday ends on the next business day (the last-day rule of 1 Pa.C.S.
   § 1908). Pass `rollForward: false` to keep the day as it falls. A
@@ -147,7 +155,9 @@ than a built-in assumption:
   your agency's own closures with `withClosure()`.
 - **After-hours receipt.** The Act sets no cutoff. Some agencies' RTKL
   policies treat a request received after the close of business as received
-  the next business day; pass that agency's closing time as `cutoff`.
+  the next business day; pass that agency's closing time as `cutoff`. A
+  cutoff also deems weekend and holiday receipts to the next business day
+  (see [How receipt is handled](#how-receipt-is-handled)).
 - **The 30 days.** § 902(b)(2) says "30 days", not "business days", so they
   are counted as calendar days.
 - **Not computed:** the 15-business-day appeal period after a *deemed*

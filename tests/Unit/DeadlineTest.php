@@ -221,6 +221,14 @@ describe('receipt cutoffs', function (): void {
             ->and($deadline->explain()->ofKind(StepKind::DeemedReceived)[0]->description)->toStartWith('Received on a day that is not a business day');
     });
 
+    it('deems closed-day receipt only when a cutoff is set, as documented', function (): void {
+        // Saturday 24 October 2026. Without a cutoff Saturday is the excluded
+        // receipt day and Monday is day 1; any cutoff, even 23:59, deems the
+        // receipt to Monday, which is then excluded, so the result is a day later.
+        expect(pa('2026-10-24 11:00')->dueDate()->toString())->toBe('2026-10-30')
+            ->and(pa('2026-10-24 11:00')->withCutoff('23:59')->dueDate()->toString())->toBe('2026-11-02');
+    });
+
     it('can be removed again', function (): void {
         expect(pa('2026-10-29 17:00')->withCutoff('16:30')->withoutCutoff()->dueDate()->toString())->toBe('2026-11-06');
     });

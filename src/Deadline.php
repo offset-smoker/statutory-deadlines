@@ -166,6 +166,12 @@ final readonly class Deadline
      * Receipt at or after this time of day, or on a day that is not a
      * business day, is deemed to be receipt on the next business day.
      *
+     * Setting a cutoff therefore also moves weekend and holiday receipts: a
+     * Saturday receipt with no cutoff makes Monday day 1, while with any
+     * cutoff Monday becomes the (excluded) receipt day and Tuesday is day 1.
+     * That matches policies of the form "received after hours or on a day the
+     * office is closed counts as received the next business day".
+     *
      * @return self<TDate>
      */
     public function withCutoff(Cutoff|string $cutoff): self

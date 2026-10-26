@@ -55,7 +55,9 @@ use OffsetSmoker\StatutoryDeadlines\Unit;
  * - The Act sets no after-hours rule. Some agencies' RTKL policies treat a
  *   request received after the close of business as received the next
  *   business day; pass $cutoff with that agency's closing time to apply one.
- *   There is no cutoff by default.
+ *   A cutoff also deems a request received on a weekend day or holiday to be
+ *   received the next business day, which makes the response due one
+ *   business day later than with no cutoff. There is no cutoff by default.
  * - The appeal period from a deemed denial (also § 1101(a)(1)) is not
  *   computed, because the Act does not name the day a deemed denial occurs.
  */
